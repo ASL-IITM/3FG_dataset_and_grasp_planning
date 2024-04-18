@@ -18,11 +18,12 @@ def quaternion_loss(q_actual, q_predicted):
         torch.Tensor: Quaternion loss.
     """
     # Compute dot product
-    dot_product = torch.sum(q_actual * q_predicted, dim=2)
+    #dot_product = torch.sum(q_actual * q_predicted, dim=2)
 
     # Take absolute difference from 1
-    loss = 1 - (torch.abs(dot_product))**2
+    #loss = 1 - torch.abs(dot_product)
     #loss = torch.acos(dot_product)
+    loss = torch.abs(torch.acos(torch.clamp(torch.sum(q_actual * q_predicted, dim=2), -1.0, 1.0)))
     #print('loss:',loss.mean())
 
     return loss.mean()  # Return mean loss over the batch and number of outputs
@@ -53,17 +54,53 @@ def accuracy(pos_predictions, pos_targets, orient_predictions, orient_targets, p
             distance = torch.norm(pos_pred - pos_target)  # Calculate Euclidean distance
             #print('ori_pred: ', ori_pred)
             #print('ori_target: ', ori_target)
-            angle = torch.acos(torch.sum(ori_target * ori_pred)) # 3 degree threshold for angle
+            #angle = torch.acos(torch.sum(ori_target * ori_pred)) # 3 degree threshold for angle
+            angle = torch.abs(torch.acos(torch.clamp(torch.sum(ori_target * ori_pred), -1.0, 1.0)))
             #print('angle: ', angle)
-            #if distance <= pos_threshold and angle <= ori_threshold:
-            if distance <= pos_threshold:
+            if distance <= pos_threshold and angle <= ori_threshold:
+            #if distance <= pos_threshold:
                 num_correct += 1
     total_predictions = batch_size * num_outputs
     accuracy = (num_correct / total_predictions) * 100.0
     #print('accuracy: ',accuracy)
 
     return accuracy
+'''
+def accuracy(pos_predictions, pos_targets, pos_threshold=0.08):
+    """
+    Calculate the accuracy based on Euclidean distance between predictions and targets.
 
+    Args:
+    - predictions (torch.Tensor): Predicted positions (batch_size, num_outputs, 3).
+    - targets (torch.Tensor): Actual positions (batch_size, num_outputs, 3).
+    - threshold (float): Maximum allowed Euclidean distance for a prediction to be considered accurate.
+
+    Returns:
+    - accuracy (float): Percentage of accurate predictions.
+    """
+    batch_size, num_outputs, _ = pos_predictions.size()
+    num_correct = 0
+
+    for i in range(batch_size):
+        for j in range(num_outputs):
+            pos_pred = pos_predictions[i, j]
+            pos_target = pos_targets[i, j]
+            #ori_pred = orient_predictions[i, j]
+            #ori_target = orient_targets[i, j]
+            distance = torch.norm(pos_pred - pos_target)  # Calculate Euclidean distance
+            #print('ori_pred: ', ori_pred)
+            #print('ori_target: ', ori_target)
+            #angle = torch.acos(torch.sum(ori_target * ori_pred)) # 3 degree threshold for angle
+            #print('angle: ', angle)
+            if distance <= pos_threshold:
+            #if angle <= ori_threshold:
+                num_correct += 1
+    total_predictions = batch_size * num_outputs
+    accuracy = (num_correct / total_predictions) * 100.0
+    #print('accuracy: ',accuracy)
+
+    return accuracy
+'''
 
 def calculate_accuracy(model, dataloader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -77,7 +114,8 @@ def calculate_accuracy(model, dataloader):
             orientations = orientations.to(device)
             positions = positions.float()
             pos_outputs, orient_outputs = model(rgbd_images)
-            batch_accuracy = accuracy(pos_predictions = pos_outputs, pos_targets = positions, orient_predictions = orient_outputs, orient_targets = orientations )  # Use the previously defined accuracy function
+            #pos_outputs = model(rgbd_images)
+            batch_accuracy = accuracy(pos_predictions = pos_outputs, pos_targets = positions, orient_predictions=orient_outputs, orient_targets=orientations )  # Use the previously defined accuracy function
             total_accuracy += batch_accuracy
 
     model.train()  # Set the model back to training mode

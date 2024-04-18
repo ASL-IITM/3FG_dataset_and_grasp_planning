@@ -5,12 +5,12 @@ Created on Wed Apr 10 10:33:31 2024
 @author: aslwo
 """
 import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 import torchvision.models as models
+#import torchvision.models.vision_transformer.VisionTransformer as VisionTransformer
+#from transformers import VisionTransformer, SwinTransformer
+import timm
 
 class CNN_Position_Orientation(nn.Module):
     def __init__(self, num_outputs=1):
@@ -169,12 +169,12 @@ class MyModel(nn.Module):
 
 
 class ResNet_Position_Orientation(nn.Module):
-    def __init__(self, num_outputs=1):
+    def __init__(self, num_outputs=1, freeze_weights = True):
         super(ResNet_Position_Orientation, self).__init__()
         self.num_outputs = num_outputs
 
         # Load pretrained ResNet50 model
-        pretrained_resnet = models.resnet50(pretrained=False)
+        pretrained_resnet = models.resnet50(pretrained = freeze_weights)
         # Modify the first convolutional layer to accept 4 input channels
         pretrained_resnet.conv1 = nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)
 
@@ -183,11 +183,12 @@ class ResNet_Position_Orientation(nn.Module):
 
         # Define fully connected layers for position prediction
         self.fc_position1 = nn.Linear(2048, 1024)
-        self.fc_position2 = nn.Linear(1024, 3 * num_outputs)  # Output 5 sets of 3D positions
+        self.fc_position2 = nn.Linear(1024, 3 * num_outputs)  # Output 1 sets of 3D positions
 
         # Define fully connected layers for orientation prediction
-        self.fc_orientation1 = nn.Linear(2048, 1024)
-        self.fc_orientation2 = nn.Linear(1024, 4 * num_outputs)  # Output 10 sets of quaternions
+        self.fc_orientation1 = nn.Linear(2048, 4096)
+        self.fc_orientation2 = nn.Linear(4096, 2048)
+        self.fc_orientation3 = nn.Linear(2048, 4 * num_outputs)  # Output 1 sets of quaternions
 
     def forward(self, x):
         # Forward pass through ResNet features
@@ -202,8 +203,160 @@ class ResNet_Position_Orientation(nn.Module):
         # Orientation prediction
         orientation = F.relu(self.fc_orientation1(features))
         orientation = self.fc_orientation2(orientation)
+        orientation = self.fc_orientation3(orientation)
         orientation = orientation.view(-1, self.num_outputs, 4)  # Reshape to (batch_size, num_outputs, 4)
         orientation_norm = torch.norm(orientation, dim=-1, keepdim=True)
         orientation = orientation / orientation_norm
 
         return position, orientation
+    
+
+'''
+class Vision_Transformer_Position_Orientation(nn.Module):
+    def __init__(self, num_outputs=1):
+        super(Vision_Transformer_Position_Orientation, self).__init__()
+        self.num_outputs = num_outputs
+
+        # Load pretrained Vision Transformer model
+        pretrained_vit = VisionTransformer.from_pretrained('google/vit-base-patch16-224-in21k')
+        # Modify input layer to accept 4 input channels
+        pretrained_vit.patch_embed.proj = nn.Conv2d(4, 768, kernel_size=16, stride=16)
+
+        self.vit_features = pretrained_vit
+
+        # Define fully connected layers for orientation prediction
+        self.fc_orientation1 = nn.Linear(768, 2048)
+        self.fc_orientation2 = nn.Linear(2048, 1024)
+        self.fc_orientation3 = nn.Linear(1024, 4 * num_outputs)  # Output 10 sets of quaternions
+
+    def forward(self, x):
+        # Forward pass through Vision Transformer features
+        features = self.vit_features(x)
+        features = features[:, 0]  # Only take the first token (CLS token)
+
+        # Orientation prediction
+        orientation = F.relu(self.fc_orientation1(features))
+        orientation = F.relu(self.fc_orientation2(orientation))
+        orientation = self.fc_orientation3(orientation)
+        orientation = orientation.view(-1, self.num_outputs, 4)  # Reshape to (batch_size, num_outputs, 4)
+        orientation_norm = torch.norm(orientation, dim=-1, keepdim=True)
+        orientation = orientation / orientation_norm
+
+        return orientation
+
+class Swin_Transformer_Position_Orientation(nn.Module):
+    def __init__(self, num_outputs=1):
+        super(Swin_Transformer_Position_Orientation, self).__init__()
+        self.num_outputs = num_outputs
+
+        # Load pretrained Swin Transformer model
+        pretrained_swin = SwinTransformer(img_size=224, patch_size=4, in_chans=4)
+        self.swin_features = pretrained_swin
+
+        # Define fully connected layers for orientation prediction
+        self.fc_orientation1 = nn.Linear(1024, 2048)
+        self.fc_orientation2 = nn.Linear(2048, 4 * num_outputs)  # Output 10 sets of quaternions
+
+    def forward(self, x):
+        # Forward pass through Swin Transformer features
+        features = self.swin_features(x)
+
+        # Orientation prediction
+        orientation = F.relu(self.fc_orientation1(features))
+        orientation = self.fc_orientation2(orientation)
+        orientation = orientation.view(-1, self.num_outputs, 4)  # Reshape to (batch_size, num_outputs, 4)
+        orientation_norm = torch.norm(orientation, dim=-1, keepdim=True)
+        orientation = orientation / orientation_norm
+
+        return orientation
+'''
+class ConvNet_Position_Orientation(nn.Module):
+    def __init__(self, num_outputs=1):
+        super(ConvNet_Position_Orientation, self).__init__()
+        self.num_outputs = num_outputs
+
+        # Define ConvNet architecture
+        self.conv1 = nn.Conv2d(4, 32, kernel_size=3)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
+        self.conv4 = nn.Conv2d(128, 256, kernel_size=3)
+        self.conv5 = nn.Conv2d(256, 512, kernel_size=3)
+        self.conv6 = nn.Conv2d(512, 1024, kernel_size=3)
+        self.fc_orientation = nn.Linear(1024, 4 * num_outputs)  # Output 10 sets of quaternions
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = F.adaptive_avg_pool2d(x, (1, 1))
+        x = x.view(-1, 1024)
+        orientation = self.fc_orientation(x)
+        orientation = orientation.view(-1, self.num_outputs, 4)  # Reshape to (batch_size, num_outputs, 4)
+        orientation_norm = torch.norm(orientation, dim=-1, keepdim=True)
+        orientation = orientation / orientation_norm
+
+        return orientation
+
+class VGG_Position_Orientation(nn.Module):
+    def __init__(self, num_outputs=1):
+        super(VGG_Position_Orientation, self).__init__()
+        self.num_outputs = num_outputs
+
+        # Load pretrained VGG model
+        pretrained_vgg = models.vgg16(pretrained=True)
+        self.features = pretrained_vgg.features
+
+        # Define fully connected layers for orientation prediction
+        self.fc_orientation1 = nn.Linear(512 * 7 * 7, 4096)
+        self.fc_orientation2 = nn.Linear(4096, 4096)
+        self.fc_orientation3 = nn.Linear(4096, 4 * num_outputs)  # Output 10 sets of quaternions
+
+    def forward(self, x):
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc_orientation1(x))
+        x = F.relu(self.fc_orientation2(x))
+        orientation = self.fc_orientation3(x)
+        orientation = orientation.view(-1, self.num_outputs, 4)  # Reshape to (batch_size, num_outputs, 4)
+        orientation_norm = torch.norm(orientation, dim=-1, keepdim=True)
+        orientation = orientation / orientation_norm
+
+        return orientation
+
+class EfficientNet_Position_Orientation(nn.Module):
+    def __init__(self, num_outputs=1, freeze_weights = True):
+        super(EfficientNet_Position_Orientation, self).__init__()
+        self.num_outputs = num_outputs
+
+        # Load pretrained EfficientNet model
+        pretrained_effnet = timm.create_model('efficientnet_b0', pretrained=freeze_weights)
+        if hasattr(pretrained_effnet, 'conv_stem'):
+            pretrained_effnet.conv_stem = nn.Conv2d(4, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+       
+        self.features = pretrained_effnet
+
+        # Remove the classification layer (fully connected layer) at the end
+        self.effnet_features = nn.Sequential(*list(pretrained_effnet.children())[:-1])
+
+
+        # Define fully connected layers for orientation prediction
+        #self.fc_orientation1 = nn.Linear(1280, 512)
+        #self.fc_orientation2 = nn.Linear(512, 4 * num_outputs)  # Output 10 sets of quaternions
+        
+        self.fc_position1 = nn.Linear(1280, 1024)
+        self.fc_position2 = nn.Linear(1024, 3 * num_outputs)  # Output 10 sets of quaternions
+
+    def forward(self, x):
+        features = self.effnet_features(x)
+        features = features.view(features.size(0), -1)
+
+        # Position prediction
+        position = F.relu(self.fc_position1(features))
+        position = self.fc_position2(position)
+        position = position.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+
+        return position
+    
