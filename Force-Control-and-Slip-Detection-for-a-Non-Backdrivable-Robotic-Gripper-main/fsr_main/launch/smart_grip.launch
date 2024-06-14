@@ -1,0 +1,12 @@
+<!-- your_launch_file.launch -->
+<launch>
+  <!-- Start fsr_read.py -->
+  <node name="fsr_node" pkg="fsr_main" type="fsr_read.py" output="screen" />
+
+  <!-- Start Robotiq3FGripperTcpNode.py with the specified IP address -->
+  <node name="robotiq_gripper_node" pkg="robotiq_3f_gripper_control" type="Robotiq3FGripperTcpNode.py" args="192.168.1.11" output="screen" />
+
+  <!-- Start frc_slp_ctrl.py -->
+  <node name="new_node" pkg="fsr_main" type="frc_slp_ctrl.py" output="screen" />
+</launch>
+
