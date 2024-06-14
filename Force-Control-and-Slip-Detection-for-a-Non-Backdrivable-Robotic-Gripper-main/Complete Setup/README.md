@@ -16,7 +16,7 @@ This project involves integrating calibrated Force Sensitive Resistors (FSRs) wi
 2. 3D print the finger pad.
 3. Attach the calibrated FSRs to the finger pad as shown below:
    
-![FSR Attachment Diagram](https://github.com/JosephJoshyK/Force-Control-and-Slip-Detection-for-a-Non-Backdrivable-Robotic-Gripper/blob/main/Complete%20Setup/CAD%20Files%20Fingertip/Fingertip_cad_file.jpg)
+![FSR Attachment Diagram](https://github.com/BijoSebastian/grasp_it_repo/blob/main/Force-Control-and-Slip-Detection-for-a-Non-Backdrivable-Robotic-Gripper-main/Complete%20Setup/CAD%20Files%20Fingertip/Fingertip_cad_file.jpg)
 
 
 
@@ -41,7 +41,7 @@ This project involves integrating calibrated Force Sensitive Resistors (FSRs) wi
 2. 3D print the ring.
 3. Attach the PCB and ESP32 to the UR5 robot arm using the 3D-printed ring as shown below:
    
-   ![Mounting PCB and ESP32 on UR5 Robot Arm](https://github.com/JosephJoshyK/Force-Control-and-Slip-Detection-for-a-Non-Backdrivable-Robotic-Gripper/blob/main/Complete%20Setup/CAD%20Files%20Mounting%20ring/Complete%20Setup.png)
+   ![Mounting PCB and ESP32 on UR5 Robot Arm](https://github.com/BijoSebastian/grasp_it_repo/blob/main/Force-Control-and-Slip-Detection-for-a-Non-Backdrivable-Robotic-Gripper-main/Complete%20Setup/CAD%20Files%20Mounting%20ring/Complete%20Setup.png)
 
 
 ## Support
