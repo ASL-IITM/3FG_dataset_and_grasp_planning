@@ -11,6 +11,8 @@ import torchvision.models as models
 #import torchvision.models.vision_transformer.VisionTransformer as VisionTransformer
 #from transformers import VisionTransformer, SwinTransformer
 import timm
+import numpy as np
+from scipy.spatial.transform import Rotation
 
 class CNN_Position_Orientation(nn.Module):
     def __init__(self, num_outputs=1):
@@ -169,7 +171,7 @@ class MyModel(nn.Module):
 
 
 class ResNet_Position_Orientation(nn.Module):
-    def __init__(self, num_outputs=1, freeze_weights = True):
+    def __init__(self, num_outputs=1, freeze_weights = False):
         super(ResNet_Position_Orientation, self).__init__()
         self.num_outputs = num_outputs
 
@@ -182,33 +184,57 @@ class ResNet_Position_Orientation(nn.Module):
         self.resnet_features = nn.Sequential(*list(pretrained_resnet.children())[:-1])
 
         # Define fully connected layers for position prediction
-        self.fc_position1 = nn.Linear(2048, 1024)
-        self.fc_position2 = nn.Linear(1024, 3 * num_outputs)  # Output 1 sets of 3D positions
+        self.fc_position1 = nn.Linear(2048, 2048)
+        self.fc_position2 = nn.Linear(2048, 1024)
+        self.fc_position3 = nn.Linear(1024, 3 * num_outputs)  # Output 5 sets of 3D positions
 
         # Define fully connected layers for orientation prediction
-        self.fc_orientation1 = nn.Linear(2048, 4096)
-        self.fc_orientation2 = nn.Linear(4096, 2048)
-        self.fc_orientation3 = nn.Linear(2048, 4 * num_outputs)  # Output 1 sets of quaternions
+        self.fc_1_position1 = nn.Linear(2048, 2048)
+        self.fc_1_position2 = nn.Linear(2048, 1024)
+        self.fc_1_position3 = nn.Linear(1024, 3 * num_outputs)  # Output 10 sets of quaternions
+        
+        # Define fully connected layers for orientation prediction
+        self.fc_2_position1 = nn.Linear(2048, 2048)
+        self.fc_2_position2 = nn.Linear(2048, 1024)
+        self.fc_2_position3 = nn.Linear(1024, 3 * num_outputs)  # Output 10 sets of quaternions
+        
+        # Define fully connected layers for orientation prediction
+        self.fc_3_position1 = nn.Linear(2048, 2048)
+        self.fc_3_position2 = nn.Linear(2048, 1024)
+        self.fc_3_position3 = nn.Linear(1024, 1 * num_outputs)  # Output 10 sets of quaternions
+
 
     def forward(self, x):
         # Forward pass through ResNet features
         features = self.resnet_features(x)
         features = features.view(features.size(0), -1)
+        
+        # Position prediction
+        position_1 = F.relu(self.fc_position1(features))
+        position_1 = self.fc_position2(position_1)
+        position_1 = self.fc_position3(position_1)
+        position_1 = position_1.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
 
         # Position prediction
-        position = F.relu(self.fc_position1(features))
-        position = self.fc_position2(position)
-        position = position.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        position_2 = F.relu(self.fc_1_position1(features))
+        position_2 = self.fc_1_position2(position_2)
+        position_2 = self.fc_1_position3(position_2)
+        position_2 = position_2.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        
+        # Position prediction
+        position_3 = F.relu(self.fc_2_position1(features))
+        position_3 = self.fc_2_position2(position_3)
+        position_3 = self.fc_2_position3(position_3)
+        position_3 = position_3.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        
+        # Position prediction
+        d = F.relu(self.fc_3_position1(features))
+        d = self.fc_3_position2(d)
+        d = self.fc_3_position3(d)
+        d = d.view(-1, self.num_outputs, 1)  # Reshape to (batch_size, num_outputs, 1)
 
-        # Orientation prediction
-        orientation = F.relu(self.fc_orientation1(features))
-        orientation = self.fc_orientation2(orientation)
-        orientation = self.fc_orientation3(orientation)
-        orientation = orientation.view(-1, self.num_outputs, 4)  # Reshape to (batch_size, num_outputs, 4)
-        orientation_norm = torch.norm(orientation, dim=-1, keepdim=True)
-        orientation = orientation / orientation_norm
+        return position_1, position_2, position_3, d
 
-        return position, orientation
     
 
 '''
@@ -327,7 +353,7 @@ class VGG_Position_Orientation(nn.Module):
         return orientation
 
 class EfficientNet_Position_Orientation(nn.Module):
-    def __init__(self, num_outputs=1, freeze_weights = True):
+    def __init__(self, num_outputs=1, freeze_weights = False,  dropout_rate=0.1):
         super(EfficientNet_Position_Orientation, self).__init__()
         self.num_outputs = num_outputs
 
@@ -340,23 +366,247 @@ class EfficientNet_Position_Orientation(nn.Module):
 
         # Remove the classification layer (fully connected layer) at the end
         self.effnet_features = nn.Sequential(*list(pretrained_effnet.children())[:-1])
-
+        
+        # Define fully connected layers for position prediction
+        self.fc_position1 = nn.Linear(1280, 2048)
+        self.fc_position2 = nn.Linear(2048, 1024)
+        self.fc_position3 = nn.Linear(1024, 3 * num_outputs)  # Output 5 sets of 3D positions
 
         # Define fully connected layers for orientation prediction
-        #self.fc_orientation1 = nn.Linear(1280, 512)
-        #self.fc_orientation2 = nn.Linear(512, 4 * num_outputs)  # Output 10 sets of quaternions
+        self.fc_1_position1 = nn.Linear(1280, 2048)
+        self.fc_1_position2 = nn.Linear(2048, 1024)
+        self.fc_1_position3 = nn.Linear(1024, 3 * num_outputs)  # Output 10 sets of quaternions
         
-        self.fc_position1 = nn.Linear(1280, 1024)
-        self.fc_position2 = nn.Linear(1024, 3 * num_outputs)  # Output 10 sets of quaternions
+        # Define fully connected layers for orientation prediction
+        self.fc_2_position1 = nn.Linear(1280, 2048)
+        self.fc_2_position2 = nn.Linear(2048, 1024)
+        self.fc_2_position3 = nn.Linear(1024, 3 * num_outputs)  # Output 10 sets of quaternions
+        
+        # Define fully connected layers for orientation prediction
+        self.fc_3_position1 = nn.Linear(1280, 2048)
+        self.fc_3_position2 = nn.Linear(2048, 1024)
+        self.fc_3_position3 = nn.Linear(1024, 1 * num_outputs)  # Output 10 sets of quaternions
 
     def forward(self, x):
         features = self.effnet_features(x)
         features = features.view(features.size(0), -1)
 
         # Position prediction
-        position = F.relu(self.fc_position1(features))
-        position = self.fc_position2(position)
-        position = position.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        position_1 = F.relu(self.fc_position1(features))
+        position_1 = self.fc_position2(position_1)
+        position_1 = self.fc_position3(position_1)
+        position_1 = position_1.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
 
-        return position
+        # Position prediction
+        position_2 = F.relu(self.fc_1_position1(features))
+        position_2 = self.fc_1_position2(position_2)
+        position_2 = self.fc_1_position3(position_2)
+        position_2 = position_2.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        
+        # Position prediction
+        position_3 = F.relu(self.fc_2_position1(features))
+        position_3 = self.fc_2_position2(position_3)
+        position_3 = self.fc_2_position3(position_3)
+        position_3 = position_3.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        
+        # Position prediction
+        d = F.relu(self.fc_3_position1(features))
+        d = self.fc_3_position2(d)
+        d = self.fc_3_position3(d)
+        d = d.view(-1, self.num_outputs, 1)  # Reshape to (batch_size, num_outputs, 1)
+        
+        return position_1, position_2, position_3, d
     
+    
+# Helper functions
+def euler_angles_to_rotation_matrix(euler):
+    """
+    Convert batch of Euler angles to batch of rotation matrices.
+    
+    Args:
+        euler: (B, N, 3) tensor containing Euler angles in radians, 
+               where B is the batch size and N is the number of outputs.
+        
+    Returns:
+        (B, N, 3, 3) tensor containing rotation matrices.
+    """
+    B, N, _ = euler.shape
+    c1 = torch.cos(euler[:, :, 0]).view(B, N, 1)
+    s1 = torch.sin(euler[:, :, 0]).view(B, N, 1)
+    c2 = torch.cos(euler[:, :, 1]).view(B, N, 1)
+    s2 = torch.sin(euler[:, :, 1]).view(B, N, 1)
+    c3 = torch.cos(euler[:, :, 2]).view(B, N, 1)
+    s3 = torch.sin(euler[:, :, 2]).view(B, N, 1)
+
+    # Rotation matrices around the x, y, and z axes
+    R_x = torch.stack([
+        torch.ones(B, N, 1, device=euler.device), torch.zeros(B, N, 1, device=euler.device), torch.zeros(B, N, 1, device=euler.device),
+        torch.zeros(B, N, 1, device=euler.device), c1, -s1,
+        torch.zeros(B, N, 1, device=euler.device), s1, c1
+    ], dim=3).view(B, N, 3, 3)
+
+    R_y = torch.stack([
+        c2, torch.zeros(B, N, 1, device=euler.device), s2,
+        torch.zeros(B, N, 1, device=euler.device), torch.ones(B, N, 1, device=euler.device), torch.zeros(B, N, 1, device=euler.device),
+        -s2, torch.zeros(B, N, 1, device=euler.device), c2
+    ], dim=3).view(B, N, 3, 3)
+
+    R_z = torch.stack([
+        c3, -s3, torch.zeros(B, N, 1, device=euler.device),
+        s3, c3, torch.zeros(B, N, 1, device=euler.device),
+        torch.zeros(B, N, 1, device=euler.device), torch.zeros(B, N, 1, device=euler.device), torch.ones(B, N, 1, device=euler.device)
+    ], dim=3).view(B, N, 3, 3)
+
+    R = torch.matmul(R_z, torch.matmul(R_y, R_x))
+
+    return R
+
+def rotate_vertices(position, orientation, vertices):
+    """Rotate vertices based on position and orientation using PyTorch."""
+    rotation_matrix = euler_angles_to_rotation_matrix(orientation)
+    rotated_vertices = torch.matmul(rotation_matrix, vertices.transpose(-1, -2)).transpose(-1, -2)
+    rotated_vertices += position.unsqueeze(2)
+    return rotated_vertices
+
+
+class EfficientNet_Position_Orientation_2(nn.Module):
+    def __init__(self, num_outputs=1, freeze_weights = False):
+        super(EfficientNet_Position_Orientation_2, self).__init__()
+        self.num_outputs = num_outputs
+
+        # Load pretrained EfficientNet model
+        pretrained_effnet = timm.create_model('efficientnet_b0', pretrained=freeze_weights)
+        if hasattr(pretrained_effnet, 'conv_stem'):
+            pretrained_effnet.conv_stem = nn.Conv2d(4, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+       
+        self.features = pretrained_effnet
+
+        # Remove the classification layer (fully connected layer) at the end
+        self.effnet_features = nn.Sequential(*list(pretrained_effnet.children())[:-1])
+        
+        # Define fully connected layers for position prediction
+        self.fc_position1 = nn.Linear(1280, 2048)
+        self.fc_position2 = nn.Linear(2048, 1024)
+        self.fc_position3 = nn.Linear(1024, 3 * num_outputs)  # Output 5 sets of 3D positions
+
+        # Define fully connected layers for orientation prediction
+        self.fc_1_orientation1 = nn.Linear(1280, 2048)
+        self.fc_1_orientation2 = nn.Linear(2048, 1024)
+        self.fc_1_orientation3 = nn.Linear(1024, 3 * num_outputs)  # Output 10 sets of quaternions
+        
+        # Define fully connected layers for orientation prediction
+        self.fc_2_d1 = nn.Linear(1280, 2048)
+        self.fc_2_d2 = nn.Linear(2048, 1024)
+        self.fc_2_d3 = nn.Linear(1024, 1 * num_outputs)  # Output 10 sets of quaternions
+
+    def forward(self, x):
+        features = self.effnet_features(x)
+        features = features.view(features.size(0), -1)
+
+        # Position prediction
+        position_1 = F.relu(self.fc_position1(features))
+        position_1 = self.fc_position2(position_1)
+        position_1 = self.fc_position3(position_1)
+        position_1 = position_1.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+
+        # Position prediction
+        orientation_1 = F.relu(self.fc_1_orientation1(features))
+        orientation_1 = self.fc_1_orientation2(orientation_1)
+        orientation_1 = self.fc_1_orientation3(orientation_1)
+        orientation_1 = orientation_1.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        
+        # Position prediction
+        d = F.relu(self.fc_2_d1(features))
+        d = self.fc_2_d2(d)
+        d = self.fc_2_d3(d)
+        d = d.view(-1, self.num_outputs, 1)  # Reshape to (batch_size, num_outputs, 1)
+        
+        # Calculate vertices for the isosceles triangle
+        batch_size = x.size(0)
+        grasp_vertices_template = torch.tensor([[0.09, 0, 0], [-0.09, 0, 0], [-0.09, 0, 0]], dtype=torch.float, device=x.device)
+
+        grasp_vertices = grasp_vertices_template.unsqueeze(0).unsqueeze(0).repeat(batch_size, self.num_outputs, 1, 1)
+        grasp_vertices[:, :, 1, 2] = 0.001 * (d.squeeze(-1) / 2)
+        grasp_vertices[:, :, 2, 2] = -0.001 * (d.squeeze(-1) / 2)
+
+        vertices = rotate_vertices(position_1, orientation_1, grasp_vertices)
+
+        vertex_1 = vertices[:, :, 0, :].view(batch_size, self.num_outputs, 3)
+        vertex_2 = vertices[:, :, 1, :].view(batch_size, self.num_outputs, 3)
+        vertex_3 = vertices[:, :, 2, :].view(batch_size, self.num_outputs, 3)
+
+        return vertex_1, vertex_2, vertex_3
+    
+class ResNet_Position_Orientation_2(nn.Module):
+    def __init__(self, num_outputs=1, freeze_weights = False):
+        super(ResNet_Position_Orientation_2, self).__init__()
+        self.num_outputs = num_outputs
+
+        # Load pretrained ResNet50 model
+        pretrained_resnet = models.resnet50(pretrained = freeze_weights)
+        # Modify the first convolutional layer to accept 4 input channels
+        pretrained_resnet.conv1 = nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)
+
+        # Remove the classification layer (fully connected layer) at the end
+        self.resnet_features = nn.Sequential(*list(pretrained_resnet.children())[:-1])
+
+        # Define fully connected layers for position prediction
+        self.fc_position1 = nn.Linear(2048, 2048)
+        self.fc_position2 = nn.Linear(2048, 1024)
+        self.fc_position3 = nn.Linear(1024, 512)
+        self.fc_position4 = nn.Linear(512, 3 * num_outputs)  # Output 5 sets of 3D positions
+
+         # Define fully connected layers for orientation prediction
+        self.fc_1_orientation1 = nn.Linear(2048, 2048)
+        self.fc_1_orientation2 = nn.Linear(2048, 1024)
+        self.fc_1_orientation3 = nn.Linear(1024, 512)
+        self.fc_1_orientation4 = nn.Linear(512, 3 * num_outputs)  # Output 10 sets of quaternions
+         
+        # Define fully connected layers for orientation prediction
+        self.fc_2_d1 = nn.Linear(2048, 2048)
+        self.fc_2_d2 = nn.Linear(2048, 1024)
+        self.fc_2_d3 = nn.Linear(1024, 512)
+        self.fc_2_d4 = nn.Linear(512, 1 * num_outputs)  # Output 10 sets of quaternions
+
+
+    def forward(self, x):
+        # Forward pass through ResNet features
+        features = self.resnet_features(x)
+        features = features.view(features.size(0), -1)
+        
+        # Position prediction
+        position_1 = F.relu(self.fc_position1(features))
+        position_1 = self.fc_position2(position_1)
+        position_1 = self.fc_position3(position_1)
+        position_1 = self.fc_position4(position_1)
+        position_1 = position_1.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+
+        # Position prediction
+        orientation_1 = F.relu(self.fc_1_orientation1(features))
+        orientation_1 = self.fc_1_orientation2(orientation_1)
+        orientation_1 = self.fc_1_orientation3(orientation_1)
+        orientation_1 = self.fc_1_orientation4(orientation_1)
+        orientation_1 = orientation_1.view(-1, self.num_outputs, 3)  # Reshape to (batch_size, num_outputs, 3)
+        
+        # Position prediction
+        d = F.relu(self.fc_2_d1(features))
+        d = self.fc_2_d2(d)
+        d = self.fc_2_d3(d)
+        d = self.fc_2_d4(d)
+        d = d.view(-1, self.num_outputs, 1)  # Reshape to (batch_size, num_outputs, 1)
+        
+        # Calculate vertices for the isosceles triangle
+        batch_size = x.size(0)
+        grasp_vertices_template = torch.tensor([[0.09, 0, 0], [-0.09, 0, 0], [-0.09, 0, 0]], dtype=torch.float, device=x.device)
+
+        grasp_vertices = grasp_vertices_template.unsqueeze(0).unsqueeze(0).repeat(batch_size, self.num_outputs, 1, 1)
+        grasp_vertices[:, :, 1, 2] = 0.001 * (d.squeeze(-1) / 2)
+        grasp_vertices[:, :, 2, 2] = -0.001 * (d.squeeze(-1) / 2)
+
+        vertices = rotate_vertices(position_1, orientation_1, grasp_vertices)
+
+        vertex_1 = vertices[:, :, 0, :].view(batch_size, self.num_outputs, 3)
+        vertex_2 = vertices[:, :, 1, :].view(batch_size, self.num_outputs, 3)
+        vertex_3 = vertices[:, :, 2, :].view(batch_size, self.num_outputs, 3)
+
+        return vertex_1, vertex_2, vertex_3, position_1, orientation_1, d

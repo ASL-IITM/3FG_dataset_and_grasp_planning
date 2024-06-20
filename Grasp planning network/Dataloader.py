@@ -53,20 +53,39 @@ class RGBDDataset(Dataset):
         # Combine RGB and depth images into RGBD
         rgbd_img = torch.cat((rgb_img, depth_img), dim=0)
         # Get position and orientation values for all five sets
+        '''
         positions = []
         orientations = []
-        '''for i in range(5):
-            idx_values = self.df.iloc[idx * 5 + i]
-            positions.append(torch.tensor(idx_values[['X', 'Y', 'Z']].values))
-            orientations.append(torch.tensor(idx_values[['x_q', 'y_q', 'z_q', 'w_q']].values))'''
 
         for i in range(1):
             idx_values = self.df.iloc[idx * 1 + i]
             positions.append(torch.tensor(idx_values[['X', 'Y', 'Z']].values))
-            orientations.append(torch.tensor(idx_values[['x_q', 'y_q', 'z_q', 'w_q']].values))
+            orientations.append(torch.tensor(idx_values[['roll', 'pitch', 'yaw']].values))
         positions = torch.stack(positions)  # Convert list of tensors to a single tensor
         orientations = torch.stack(orientations)  # Convert list of tensors to a single tensor
+        '''
+        positions_1 = []
+        positions_2 = []
+        positions_3 = []
+        centroid = []
+        orientation = []
+        d = []
 
-        return rgbd_img, positions, orientations
+        for i in range(1):
+            idx_values = self.df.iloc[idx * 1 + i]
+            positions_1.append(torch.tensor(idx_values[['X_1', 'Y_1', 'Z_1']].values))
+            positions_2.append(torch.tensor(idx_values[['X_2', 'Y_2', 'Z_2']].values))
+            positions_3.append(torch.tensor(idx_values[['X_3', 'Y_3', 'Z_3']].values))
+            centroid.append(torch.tensor(idx_values[['X', 'Y', 'Z']].values))
+            orientation.append(torch.tensor(idx_values[['roll', 'pitch', 'yaw']].values))
+            d.append(torch.tensor(idx_values[['d']].values))
+        positions_1 = torch.stack(positions_1)  # Convert list of tensors to a single tensor
+        positions_2 = torch.stack(positions_2)  # Convert list of tensors to a single tensor
+        positions_3 = torch.stack(positions_3)  # Convert list of tensors to a single tensor
+        centroid = torch.stack(centroid)
+        orientation = torch.stack(orientation)
+        d = torch.stack(d)
+
+        return rgbd_img, positions_1, positions_2, positions_3, centroid, orientation, d
 
 
