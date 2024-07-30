@@ -101,8 +101,4 @@ This script implements the force control and slip detection logic for the roboti
 - Continuously reads FSR values.
 - Adjusts the gripper position and force based on the real-time feedback.
 - Detects slip conditions and takes corrective actions.
-  
-## Acknowledgements
-
-This project is developed to enhance the performance of a non-backdrivable robotic gripper by implementing advanced force control and slip detection mechanisms. Special thanks to the developers of the ROS and Robotiq 3F Gripper control package for their invaluable tools and support.
 
