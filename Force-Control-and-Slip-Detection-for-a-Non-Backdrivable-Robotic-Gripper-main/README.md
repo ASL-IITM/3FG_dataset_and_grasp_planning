@@ -44,7 +44,7 @@ To get started with this project, follow these steps:
     cd Force-Control-and-Slip-Detection-for-a-Non-Backdrivable-Robotic-Gripper
     ```
 
-3. **Setup the Hardware:** Follow the instructions in the `FSR Setup`, `Gripper Setup`, and `Complete Setup` folders to set up the robotic gripper and connect the FSR sensors.
+2. **Setup the Hardware:** Follow the instructions in the `FSR Setup`, `Gripper Setup`, and `Complete Setup` folders to set up the robotic gripper and connect the FSR sensors.
 
     - **FSR Setup:**
       - Navigate to the `FSR Setup` folder.
@@ -53,16 +53,14 @@ To get started with this project, follow these steps:
     - **Gripper Setup:**
       - Navigate to the `Gripper Setup` folder.
       - Follow the step-by-step instructions to configure the robotic gripper.
-## Acknowledgements
 
-This project is developed to enhance the performance of a non-backdrivable robotic gripper by implementing advanced force control and slip detection mechanisms. Special thanks to the developers of the ROS and Robotiq 3F Gripper control package for their invaluable tools and support.
 
     - **Complete Setup:**
       - Navigate to the `Complete Setup` folder.
       - Follow the comprehensive guide to ensure all components are correctly integrated and configured.
 
 
-4. **Launch the fsr_main codes:**
+3. **Launch the fsr_main codes:**
     ```bash
     roslaunch fsr_main smart_grip.launch
     ```
@@ -75,6 +73,7 @@ If you encounter any issues or have questions about the project, you can:
 - **Open an Issue:** Create a new issue in the GitHub repository for any bugs or feature requests.
 - **Discussions:** Participate in discussions on the GitHub Discussions page for this project.
 - **Documentation:** Refer to the `README.md` folder for detailed documentation on the system architecture, setup, and usage.
+
 
 ## Acknowledgements
 
