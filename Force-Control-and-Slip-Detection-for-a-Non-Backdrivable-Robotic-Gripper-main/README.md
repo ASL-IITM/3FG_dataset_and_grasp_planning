@@ -82,7 +82,7 @@ This project is developed to enhance the performance of a non-backdrivable robot
 
 ## Who Maintains and Contributes to the Project
 
-This project is maintained by Joseph Joshy. Contributions are welcome! If you'd like to contribute, please fork the repository and create a pull request with your changes. Ensure your code adheres to the project's coding standards and includes relevant tests.
+This project is maintained by Bijo sebastian and Joseph Joshy. Contributions are welcome! If you'd like to contribute, please fork the repository and create a pull request with your changes. Ensure your code adheres to the project's coding standards and includes relevant tests.
 
 ---
 
