@@ -44,8 +44,6 @@ This project involves integrating calibrated Force Sensitive Resistors (FSRs) wi
    ![Mounting PCB and ESP32 on UR5 Robot Arm](https://github.com/BijoSebastian/grasp_it_repo/blob/main/Force-Control-and-Slip-Detection-for-a-Non-Backdrivable-Robotic-Gripper-main/Complete%20Setup/CAD%20Files%20Mounting%20ring/Complete%20Setup.png)
 
 
-## Support
-For any questions or issues, please contact josephkjoshy@gmail.com.
 
 ## Acknowledgements
 - CAD models provided in `CAD Files Fingertip` and `CAD Files Mounting Ring`.
