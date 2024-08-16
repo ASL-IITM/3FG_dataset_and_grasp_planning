@@ -16,3 +16,11 @@ Add small description of overall working of grasp planning approach from paper
 Add images/videos of final demonstration
 
 Add link to paper/journal at the end
+
+```
+rosrun pick_and_place grasp_prediction.py
+```
+
+```
+rosrun pick_and_place grasp_prediction.py
+```
