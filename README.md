@@ -9,6 +9,8 @@ Clean up neural networks code, clean up the unwanted files
 
 Add the pybullet simulation(add working videos of it in the repository) 
 
+ADD GRASPIT! DATA GENERATION FILES 
+
 Add rospackage used for final visualization
 
 Add small description of overall working of grasp planning approach from paper
