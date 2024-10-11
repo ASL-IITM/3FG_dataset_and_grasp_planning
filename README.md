@@ -28,7 +28,7 @@ rosrun pick_and_place pick_place_gripper_pose
 ```
 
 ## HARDWARE TRIALS
-![Image for hardware](relative/path/to/image.png)
+![Image for hardware](setup_videos/hardware setup 2.png)
 
 | [![Video 1](https://img.youtube.com/vi/i2BODHclz6M/maxresdefault.jpg)](https://youtu.be/i2BODHclz6M) | [![Video 2](https://img.youtube.com/vi/7vDVp1h4Ydw/maxresdefault.jpg)](https://youtu.be/7vDVp1h4Ydw) |
 | --- | --- |
