@@ -26,6 +26,4 @@ rosrun pick_and_place grasp_prediction.py
 ```
 rosrun pick_and_place pick_place_gripper_pose 
 ```
-[![Watch the video](setup_videos/hardware setup 2.png)](https://youtu.be/i2BODHclz6M)
-
-[Video1](https://github.com/BijoSebastian/grasp_it_repo/blob/main/setup_videos/Obj_1-1.mp4)
+[![Watch the video](https://img.youtube.com/vi/i2BODHclz6M/maxresdefault.jpg)](https://youtu.be/i2BODHclz6M)
