@@ -28,6 +28,7 @@ rosrun pick_and_place pick_place_gripper_pose
 ```
 
 ## HARDWARE TRIALS
+![Image for hardware](relative/path/to/image.png)
 
 | [![Video 1](https://img.youtube.com/vi/i2BODHclz6M/maxresdefault.jpg)](https://youtu.be/i2BODHclz6M) | [![Video 2](https://img.youtube.com/vi/7vDVp1h4Ydw/maxresdefault.jpg)](https://youtu.be/7vDVp1h4Ydw) |
 | --- | --- |
@@ -37,15 +38,4 @@ rosrun pick_and_place pick_place_gripper_pose
 | [![Video 9](https://img.youtube.com/vi/-6s4hpb3Slk/maxresdefault.jpg)](https://youtu.be/-6s4hpb3Slk) | [![Video 10](https://img.youtube.com/vi/jcGFYyq38Kc/maxresdefault.jpg)](https://youtu.be/jcGFYyq38Kc) |
 
 
-
-[![Video 1](https://img.youtube.com/vi/i2BODHclz6M/maxresdefault.jpg)](https://youtu.be/i2BODHclz6M)
-[![Video 2](https://img.youtube.com/vi/7vDVp1h4Ydw/maxresdefault.jpg)](https://youtu.be/7vDVp1h4Ydw)
-[![Video 3](https://img.youtube.com/vi/gKLEz_waeV8/maxresdefault.jpg)](https://youtu.be/gKLEz_waeV8)
-[![Video 4](https://img.youtube.com/vi/g_tg9Y3nOA4/maxresdefault.jpg)](https://youtu.be/g_tg9Y3nOA4)
-[![Video 5](https://img.youtube.com/vi/IRkv-CzLW2Y/maxresdefault.jpg)](https://youtu.be/IRkv-CzLW2Y)
-[![Video 6](https://img.youtube.com/vi/TvEhQjx80Uw/maxresdefault.jpg)](https://youtu.be/TvEhQjx80Uw)
-[![Video 7](https://img.youtube.com/vi/kzqKcuT7bY8/maxresdefault.jpg)](https://youtu.be/kzqKcuT7bY8)
-[![Video 8](https://img.youtube.com/vi/NyurH-DUuHU/maxresdefault.jpg)](https://youtu.be/NyurH-DUuHU)
-[![Video 9](https://img.youtube.com/vi/-6s4hpb3Slk/maxresdefault.jpg)](https://youtu.be/-6s4hpb3Slk)
-[![Video 10](https://img.youtube.com/vi/jcGFYyq38Kc/maxresdefault.jpg)](https://youtu.be/jcGFYyq38Kc)
 
