@@ -26,3 +26,4 @@ rosrun pick_and_place grasp_prediction.py
 ```
 rosrun pick_and_place pick_place_gripper_pose 
 ```
+![Trial](setup_videos/obj_1-1.mp4)
