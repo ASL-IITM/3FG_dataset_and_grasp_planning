@@ -1,0 +1,6 @@
+int32 goal_id 
+int32 counter
+geometry_msgs/Pose obj_pose
+---
+geometry_msgs/Pose gripper_pose
+float32[] dofs
