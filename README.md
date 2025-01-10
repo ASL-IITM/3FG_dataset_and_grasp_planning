@@ -1,4 +1,4 @@
-# grasp_it_repo
+# Grasp Planning for Three-Finger Grippers Using Triangular Representation - Dataset & Code Repository
 
 Grasp planning dataset and other files
 1. [Dataset1](https://drive.google.com/drive/folders/1Lcg-l77vlqi1BVYm8FlydDgVehD4JRyB?usp=drive_link)
