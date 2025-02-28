@@ -1,34 +1,68 @@
-# Grasp Planning for Three-Finger Grippers Using Triangular Representation - Dataset & Code Repository
+# **Grasp Planning for Three-Finger Grippers Using Triangular Representation - Dataset & Code Repository**
 
-Grasp planning dataset and other files
-1. [Dataset1](https://drive.google.com/drive/folders/1Lcg-l77vlqi1BVYm8FlydDgVehD4JRyB?usp=drive_link)
+This repository contains the dataset, neural network models, simulation setups, and code for **grasp planning using a three-finger gripper** with a **triangular representation**.
 
-Show the structure of folders and packages:
-
-Clean up neural networks code, clean up the unwanted files
-
-Add the pybullet simulation(add working videos of it in the repository) 
-
-ADD GRASPIT! DATA GENERATION FILES 
-
-Add rospackage used for final visualization
-
-Add small description of overall working of grasp planning approach from paper
-
-Add images/videos of final demonstration
-
-Add link to paper/journal at the end
-
+## **Repository Structure**
 ```
+📂 3FG_dataset_and_grasp_planning
+│── 📂 Blender files
+│   └── RGBD_creation_script.blend
+│
+│── 📂 Grasp planning network
+│   ├── Dataloader.py
+│   ├── Loss_and_accuracy.py
+│   ├── Vanilla_CNN_models.py
+│   ├── grasp_planning_vanilla_architectures.py
+│   ├── grasp_planning_vanilla_architectures_wandb.py
+│   ├── masking_script.py
+│   ├── prediction_file.py
+│
+│── 📂 PyBullet grasp quality setup
+│   └── Grasp quality file.py
+│
+│── 📂 setup_videos
+│── 📜 grasp_planning_vanilla_architectures.py
+```
+
+- The `main` branch contains **neural network models**, **grasp planning code**, and **simulation setup**.
+- The **`graspit` branch** contains **Graspit! files** and **installation instructions** for data generation.
+
+---
+
+## **Grasp Planning Approach**
+1. **Dataset Collection**:  
+   - RGBD images and grasp labels using **Blender & Graspit!**.
+   - Dataset stored externally:  
+     📌 **[Download Dataset](https://drive.google.com/drive/folders/1Lcg-l77vlqi1BVYm8FlydDgVehD4JRyB?usp=drive_link)**  
+2. **Neural Network for Grasp Prediction**:  
+   - Uses a **Vanilla CNN model** for grasp pose estimation.
+3. **Simulation Setup**:  
+   - **PyBullet-based grasp evaluation**.
+   - **ROS-based visualization & execution**.
+
+---
+
+## **Running the ROS-based Grasp Execution**
+```sh
 rosrun pick_and_place grasp_prediction.py
+rosrun pick_and_place pick_place_gripper_pose
 ```
 
-```
-rosrun pick_and_place pick_place_gripper_pose 
-```
+---
 
-## HARDWARE TRIALS
-![Image for hardware](setup_videos/hardware_setup_2.png "Hardware setup")
+## **PyBullet Grasp Quality Simulation**
+📌 The ![Grasp quality file](pybullet grasp quality setup/Grasp quality file.py)
+
+---
+
+## **Graspit! Data Generation**
+📌 **Available in `graspit` branch**:  
+- Instructions on how to install and use **Graspit!** for generating grasp datasets.
+
+---
+
+## **Hardware Trials**
+![Hardware Setup](setup_videos/hardware_setup_2.png "Hardware setup")
 
 | [![Video 1](https://img.youtube.com/vi/i2BODHclz6M/maxresdefault.jpg "Object 1 orientation 1")](https://youtu.be/i2BODHclz6M) | [![Video 2](https://img.youtube.com/vi/7vDVp1h4Ydw/maxresdefault.jpg "Object 1 orientation 2")](https://youtu.be/7vDVp1h4Ydw) |
 | --- | --- |
@@ -37,5 +71,9 @@ rosrun pick_and_place pick_place_gripper_pose
 | [![Video 7](https://img.youtube.com/vi/kzqKcuT7bY8/maxresdefault.jpg "Object 4 orientation 1")](https://youtu.be/kzqKcuT7bY8) | [![Video 8](https://img.youtube.com/vi/NyurH-DUuHU/maxresdefault.jpg "Object 4 orientation 2")](https://youtu.be/NyurH-DUuHU) |
 | [![Video 9](https://img.youtube.com/vi/-6s4hpb3Slk/maxresdefault.jpg "Object 5 orientation 1")](https://youtu.be/-6s4hpb3Slk) | [![Video 10](https://img.youtube.com/vi/jcGFYyq38Kc/maxresdefault.jpg "Object 5 orientation 2")](https://youtu.be/jcGFYyq38Kc) |
 
+---
 
+## **Paper & Citation**
+📌 **[Paper Link - To Be Added]**
 
+---
