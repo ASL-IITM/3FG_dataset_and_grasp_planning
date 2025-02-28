@@ -106,7 +106,6 @@ rosrun pick_and_place pick_place_gripper_pose
 ---
 
 ## **Hardware Trials**
-## **Hardware Trials**
 ![Hardware Setup](setup_videos/hardware_setup_2.png "Hardware setup")
 
 | [![Video 1](https://img.youtube.com/vi/i2BODHclz6M/maxresdefault.jpg "Object 1 orientation 1")](https://youtu.be/i2BODHclz6M) | [![Video 2](https://img.youtube.com/vi/7vDVp1h4Ydw/maxresdefault.jpg "Object 1 orientation 2")](https://youtu.be/7vDVp1h4Ydw) |
